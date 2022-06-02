@@ -1,0 +1,21 @@
+{
+  "name": "3dily",
+  "version": "1.0.0",
+  "description": "3DILY",
+  "type": "commonjs",
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3dily/3dily.git"
+  },
+  "keywords": [
+    "viewer"
+  ],
+  "author": "kamran",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/3dily/3dily/issues"
+  },
+  "homepage": "https://3dily.com"
+}
