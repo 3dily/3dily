@@ -1,2 +1,2 @@
-import { Scene } from './index.js';
-export default Scene;
+import { Threedily } from './index.js';
+export default Threedily;

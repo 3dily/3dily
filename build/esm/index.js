@@ -1,6 +1,6 @@
-import { Scene as _Scene } from './Scene.js';
-function Scene(opts) {
-    var Scene = new _Scene(opts);
-    return Scene;
+import { Scene } from './scene/index.js';
+function Threedily(opts) {
+    var scene = new Scene(opts);
+    return scene;
 }
-export { Scene };
+export { Threedily };

@@ -5,6 +5,7 @@
   "type": "commonjs",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
+  "types": "./build/esm/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/3dily/3dily.git"

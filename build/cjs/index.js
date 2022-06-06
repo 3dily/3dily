@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Scene = void 0;
-var Scene_js_1 = require("./Scene.js");
-function Scene(opts) {
-    var Scene = new Scene_js_1.Scene(opts);
-    return Scene;
+exports.Threedily = void 0;
+var index_js_1 = require("./scene/index.js");
+function Threedily(opts) {
+    var scene = new index_js_1.Scene(opts);
+    return scene;
 }
-exports.Scene = Scene;
+exports.Threedily = Threedily;
