@@ -12,6 +12,7 @@ var Scene = /** @class */ (function () {
         this.frameElements = [];
         this.loading = 0;
         this.events = new Events_js_1.Events();
+        this.zoom = false;
         this.onChangeFrame = function (i) {
             _this.frameElements[_this.activeFrame].classList.remove('threedily-frame-active');
             _this.frameElements[i].classList.add('threedily-frame-active');
@@ -20,12 +21,12 @@ var Scene = /** @class */ (function () {
         this.onZoom = function (transform) {
             _this.frameElements[_this.activeFrame].style.transform = transform;
             if (transform === 'unset') {
+                _this.zoom = false;
                 _this.frameElements[_this.activeFrame].src = _this.buildURL(_this.activeFrame);
             }
-            else {
-                var url = _this.buildURL(_this.activeFrame, '4k');
-                if (url !== _this.frameElements[_this.activeFrame].src)
-                    _this.frameElements[_this.activeFrame].src = url;
+            else if (!_this.zoom) {
+                _this.zoom = true;
+                _this.frameElements[_this.activeFrame].src = _this.buildURL(_this.activeFrame, '4k');
             }
         };
         this.onLoading = function () {
@@ -66,7 +67,7 @@ var Scene = /** @class */ (function () {
     Scene.prototype.setupScene = function () {
         var _this = this;
         this.remove();
-        this.framesCount = this.data.files[this.activeFrame].frames.length;
+        this.setFramesCount();
         this.sceneElement = document.createElement('div');
         this.sceneElement.classList.add('threedily-scene');
         this.container.appendChild(this.sceneElement);
@@ -91,6 +92,36 @@ var Scene = /** @class */ (function () {
             });
         };
         loadFrames();
+    };
+    Scene.prototype.setFramesCount = function () {
+        var _this = this;
+        var galleryIndex = 0;
+        if (this.opts.variants) {
+            if (!Object.keys(this.opts.variants).every(function (item) {
+                return _this.data.layers.map(function (l) { return l.code; }).includes(item);
+            })) {
+                throw console.error('variants invalid!');
+            }
+            this.data.layers.forEach(function (layer, i) {
+                if (Object.keys(_this.opts.variants).includes(layer.code)) {
+                    var index = layer.variants.indexOf(_this.opts.variants[layer.code]);
+                    if (index > -1) {
+                        galleryIndex +=
+                            i === _this.data.layers.length - 1
+                                ? index
+                                : index *
+                                    _this.data.layers
+                                        .slice(i + 1)
+                                        .map(function (layer) { return layer.variants.length; })
+                                        .reduce(function (a, b) { return a + b; }, 0);
+                    }
+                    else {
+                        throw console.error('variants invalid!');
+                    }
+                }
+            });
+        }
+        this.framesCount = this.data.files[galleryIndex].frames.length;
     };
     Scene.prototype.createLoading = function () {
         var progress = document.createElement('div');

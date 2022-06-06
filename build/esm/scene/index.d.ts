@@ -16,9 +16,11 @@ export declare class Scene {
     progressbar: HTMLDivElement;
     loading: number;
     private events;
+    zoom: boolean;
     constructor(opts: ISceneOpts);
     private init;
     private setupScene;
+    private setFramesCount;
     private createLoading;
     private validateOpts;
     private buildURL;
