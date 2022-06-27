@@ -1,19 +1,13 @@
 export interface ISceneData {
     layers: ILayerData[];
-    files: IFileData[];
+    ar: boolean;
+    framesCount: number;
+    shadow: boolean;
 }
 export interface ILayerData {
     code: string;
-    variants: string[];
+    variants: IVariantData[];
 }
-export interface IFileData {
-    frames: IFramesData;
-    ar: IARData;
-}
-export interface IFramesData {
-    length: number;
-}
-export interface IARData {
-    android: boolean;
-    ios: boolean;
+export interface IVariantData {
+    code: string;
 }

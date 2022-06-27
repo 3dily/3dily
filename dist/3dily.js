@@ -157,7 +157,6 @@
     var Scene = /** @class */ (function () {
         function Scene(opts) {
             var _this = this;
-            this.framesCount = 0;
             this.activeFrame = 0;
             this.frameElements = [];
             this.loading = 0;
@@ -179,15 +178,16 @@
                     _this.frameElements[_this.activeFrame].src = _this.buildURL(_this.activeFrame, '4k');
                 }
             };
-            this.onLoading = function () {
-                _this.loading += 1;
-                if (_this.loading === _this.framesCount) {
-                    _this.controller = new Controller(_this.sceneElement, _this.framesCount, _this.onChangeFrame, _this.onZoom);
+            this.onLoading = function (loading) {
+                if (loading === void 0) { loading = _this.loading + 1; }
+                _this.loading = loading;
+                if (_this.loading === _this.data.framesCount) {
+                    _this.controller = new Controller(_this.sceneElement, _this.data.framesCount, _this.onChangeFrame, _this.onZoom);
                     setTimeout(function () {
                         _this.progressbar.remove();
                     }, 1200);
                 }
-                _this.progressbar.firstChild.style.width = "".concat((_this.loading / _this.framesCount) * 100, "%");
+                _this.progressbar.firstChild.style.width = "".concat((_this.loading / _this.data.framesCount) * 100, "%");
             };
             this.opts = opts;
             if (this.validateOpts()) {
@@ -216,61 +216,30 @@
         Scene.prototype.setupScene = function () {
             var _this = this;
             this.remove();
-            this.setFramesCount();
             this.sceneElement = document.createElement('div');
             this.sceneElement.classList.add('threedily-scene');
             this.container.appendChild(this.sceneElement);
             this.loading = 0;
-            if (this.framesCount < 1)
+            if (this.data.framesCount < 1)
                 return;
             this.createLoading();
-            var loadFrames = function (i) {
-                if (i === void 0) { i = 0; }
+            for (var i = 0; i < this.data.framesCount; i++) {
                 var img = document.createElement('img');
                 img.classList.add('threedily-frame');
-                i === _this.activeFrame && img.classList.add('threedily-frame-active');
-                img.src = _this.buildURL(i);
-                new Promise(function (resolve) {
-                    img.onload = img.onerror = function () { return resolve(); };
-                }).then(function () {
-                    img.onload = img.onerror = undefined;
+                i === this.activeFrame && img.classList.add('threedily-frame-active');
+                this.sceneElement.appendChild(img);
+                this.frameElements.push(img);
+            }
+            var loadFrames = function (i) {
+                if (i === void 0) { i = 0; }
+                _this.frameElements[i].src = _this.buildURL(i);
+                _this.frameElements[i].onload = function () {
+                    i < _this.data.framesCount - 1 && loadFrames(i + 1);
                     _this.onLoading();
-                    _this.sceneElement.appendChild(img);
-                    _this.frameElements.push(img);
-                    i < _this.framesCount - 1 && loadFrames(i + 1);
-                });
+                    _this.frameElements[i].onload = null;
+                };
             };
             loadFrames();
-        };
-        Scene.prototype.setFramesCount = function () {
-            var _this = this;
-            var galleryIndex = 0;
-            if (this.opts.variants) {
-                if (!Object.keys(this.opts.variants).every(function (item) {
-                    return _this.data.layers.map(function (l) { return l.code; }).includes(item);
-                })) {
-                    throw console.error('variants invalid!');
-                }
-                this.data.layers.forEach(function (layer, i) {
-                    if (Object.keys(_this.opts.variants).includes(layer.code)) {
-                        var index = layer.variants.indexOf(_this.opts.variants[layer.code]);
-                        if (index > -1) {
-                            galleryIndex +=
-                                i === _this.data.layers.length - 1
-                                    ? index
-                                    : index *
-                                        _this.data.layers
-                                            .slice(i + 1)
-                                            .map(function (layer) { return layer.variants.length; })
-                                            .reduce(function (a, b) { return a + b; }, 0);
-                        }
-                        else {
-                            throw console.error('variants invalid!');
-                        }
-                    }
-                });
-            }
-            this.framesCount = this.data.files[galleryIndex].frames.length;
         };
         Scene.prototype.createLoading = function () {
             var progress = document.createElement('div');
@@ -288,13 +257,17 @@
             if (quality === void 0) { quality = '2k'; }
             return "".concat(this.baseUrl, "/image?frame=").concat(frame).concat(this.opts.shadow === true || typeof this.opts.shadow === 'undefined'
                 ? ''
-                : '&shadow=false', "&quality=").concat(quality).concat(this.opts.variants
+                : '&shadow=false', "&size=").concat(JSON.stringify({
+                width: quality === '1k' ? 1024 : quality === '2k' ? 1920 : 3840,
+            })).concat(this.opts.variants
                 ? '&variants=' + JSON.stringify(this.opts.variants)
                 : '');
         };
         Scene.prototype.remove = function () {
-            if (this.sceneElement)
+            this.frameElements = [];
+            if (this.sceneElement) {
                 this.sceneElement.remove();
+            }
         };
         Scene.prototype.changeVariants = function (variants) {
             this.opts.variants = variants;

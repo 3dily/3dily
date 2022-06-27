@@ -9,7 +9,6 @@ export declare class Scene {
     baseUrl: string;
     controller: Controller;
     data: ISceneData;
-    framesCount: number;
     activeFrame: number;
     frameElements: HTMLImageElement[];
     framesContainer: HTMLElement;
@@ -20,7 +19,6 @@ export declare class Scene {
     constructor(opts: ISceneOpts);
     private init;
     private setupScene;
-    private setFramesCount;
     private createLoading;
     private validateOpts;
     private buildURL;
