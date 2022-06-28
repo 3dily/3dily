@@ -107,13 +107,15 @@ var Scene = /** @class */ (function () {
     };
     Scene.prototype.buildURL = function (frame, quality) {
         if (quality === void 0) { quality = '2k'; }
-        return "".concat(this.baseUrl, "/image?frame=").concat(frame).concat(this.opts.shadow === true || typeof this.opts.shadow === 'undefined'
-            ? ''
-            : '&shadow=false', "&size=").concat(JSON.stringify({
+        var url = new URL("".concat(this.baseUrl, "/image"));
+        url.searchParams.append('frame', frame.toString());
+        url.searchParams.append('shadow', (!!this.opts.shadow).toString());
+        url.searchParams.append('size', JSON.stringify({
             width: quality === '1k' ? 1024 : quality === '2k' ? 1920 : 3840,
-        })).concat(this.opts.variants
-            ? '&variants=' + JSON.stringify(this.opts.variants)
-            : '', "&background=").concat(this.opts.background || '#FFFFFF');
+        }));
+        url.searchParams.append('variants', JSON.stringify(this.opts.variants));
+        url.searchParams.append('background', this.opts.background || '#FFFFFF');
+        return url.toString();
     };
     Scene.prototype.remove = function () {
         this.frameElements = [];
