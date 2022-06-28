@@ -116,6 +116,7 @@ var Scene = /** @class */ (function () {
     };
     Scene.prototype.remove = function () {
         this.frameElements = [];
+        this.container.innerHTML = '';
         if (this.sceneElement) {
             this.sceneElement.remove();
         }

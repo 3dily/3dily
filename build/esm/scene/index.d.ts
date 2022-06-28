@@ -11,7 +11,6 @@ export declare class Scene {
     data: ISceneData;
     activeFrame: number;
     frameElements: HTMLImageElement[];
-    framesContainer: HTMLElement;
     progressbar: HTMLDivElement;
     loading: number;
     private events;
