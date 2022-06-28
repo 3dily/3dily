@@ -7,4 +7,5 @@ export interface ISceneOpts {
     variants?: {
         [key: string]: string;
     };
+    background?: string;
 }

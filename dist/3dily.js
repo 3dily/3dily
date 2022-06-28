@@ -226,6 +226,7 @@
             for (var i = 0; i < this.data.framesCount; i++) {
                 var img = document.createElement('img');
                 img.classList.add('threedily-frame');
+                img.style.backgroundColor = this.opts.background || '#FFFFFF';
                 i === this.activeFrame && img.classList.add('threedily-frame-active');
                 this.sceneElement.appendChild(img);
                 this.frameElements.push(img);
@@ -261,7 +262,7 @@
                 width: quality === '1k' ? 1024 : quality === '2k' ? 1920 : 3840,
             })).concat(this.opts.variants
                 ? '&variants=' + JSON.stringify(this.opts.variants)
-                : '');
+                : '', "&background=").concat(this.opts.background || '#FFFFFF');
         };
         Scene.prototype.remove = function () {
             this.frameElements = [];
