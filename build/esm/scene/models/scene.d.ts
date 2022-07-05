@@ -8,4 +8,5 @@ export interface ISceneOpts {
         [key: string]: string;
     };
     background?: string;
+    API_URL?: string;
 }

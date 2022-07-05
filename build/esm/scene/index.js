@@ -52,7 +52,11 @@ var Scene = /** @class */ (function () {
             console.error('Container not found!');
             return;
         }
-        this.baseUrl = API_URL + this.opts.panelId + '/' + this.opts.productCode;
+        this.baseUrl =
+            (this.opts.API_URL || API_URL) +
+                this.opts.panelId +
+                '/' +
+                this.opts.productCode;
         fetch("".concat(this.baseUrl, "/data"))
             .then(function (res) { return res.json(); })
             .then(function (data) {
