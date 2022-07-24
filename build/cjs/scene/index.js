@@ -86,16 +86,19 @@ var Scene = /** @class */ (function () {
             this.sceneElement.appendChild(img);
             this.frameElements.push(img);
         }
-        var loadFrames = function (i) {
+        var loadFrames = function (i, step) {
             if (i === void 0) { i = 0; }
+            if (step === void 0) { step = 0; }
             _this.frameElements[i].src = _this.buildURL(i);
             _this.frameElements[i].onload = function () {
-                i < _this.data.framesCount - 1 && loadFrames(i + 1);
+                // i + step < this.data.framesCount - 1 && loadFrames(i + 1 + step)
                 _this.onLoading();
                 _this.frameElements[i].onload = null;
             };
         };
-        loadFrames();
+        for (var i = 0; i < this.data.framesCount; i++) {
+            loadFrames(i);
+        }
     };
     Scene.prototype.createLoading = function () {
         var progress = document.createElement('div');
@@ -117,7 +120,9 @@ var Scene = /** @class */ (function () {
         url.searchParams.append('size', JSON.stringify({
             width: quality === '1k' ? 1024 : quality === '2k' ? 1920 : 3840,
         }));
-        url.searchParams.append('variants', JSON.stringify(this.opts.variants));
+        this.opts.variants
+            ? url.searchParams.append('variants', JSON.stringify(this.opts.variants))
+            : '';
         url.searchParams.append('background', this.opts.background || '#FFFFFF');
         return url.toString();
     };
