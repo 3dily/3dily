@@ -8,11 +8,10 @@
 }
 
 .threedily-scene * {
-  pointer-events: 'none';
+  pointer-events: none;
 }
 
 .threedily-frame {
-  background-color: white;
   position: absolute;
   opacity: 0;
   height: 100%;

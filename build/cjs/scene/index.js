@@ -120,9 +120,9 @@ var Scene = /** @class */ (function () {
         url.searchParams.append('size', JSON.stringify({
             width: quality === '1k' ? 1024 : quality === '2k' ? 1920 : 3840,
         }));
-        this.opts.variants
-            ? url.searchParams.append('variants', JSON.stringify(this.opts.variants))
-            : '';
+        if (this.opts.variants) {
+            url.searchParams.append('variants', JSON.stringify(this.opts.variants));
+        }
         url.searchParams.append('background', this.opts.background || '#FFFFFF');
         return url.toString();
     };
