@@ -166,6 +166,7 @@
                 _this.frameElements[_this.activeFrame].classList.remove('threedily-frame-active');
                 _this.frameElements[i].classList.add('threedily-frame-active');
                 _this.activeFrame = i;
+                _this.events.trigger('change-frame', i);
             };
             this.onZoom = function (transform) {
                 _this.frameElements[_this.activeFrame].style.transform = transform;
@@ -283,6 +284,10 @@
         };
         Scene.prototype.changeVariants = function (variants) {
             this.opts.variants = variants;
+            this.setupScene();
+        };
+        Scene.prototype.changeBackground = function (color) {
+            this.opts.background = color;
             this.setupScene();
         };
         Scene.prototype.toggleShadow = function () {

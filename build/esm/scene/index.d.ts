@@ -28,6 +28,7 @@ export declare class Scene {
     changeVariants(variants: {
         [key: string]: string;
     }): void;
+    changeBackground(color: string): void;
     toggleShadow(): void;
     getData(): ISceneData | undefined;
     on(...args: EventsOnArgsType): void;

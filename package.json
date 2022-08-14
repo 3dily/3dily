@@ -1,6 +1,6 @@
 {
   "name": "3dily",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "3DILY",
   "type": "commonjs",
   "main": "./build/cjs/index.js",
