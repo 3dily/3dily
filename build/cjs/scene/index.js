@@ -4,6 +4,8 @@ exports.Scene = void 0;
 var constants_js_1 = require("../constants.js");
 var Controller_js_1 = require("./Controller.js");
 var Events_js_1 = require("./Events.js");
+var utils_js_1 = require("./utils.js");
+require("../libs/model-viewer.min.js");
 var Scene = /** @class */ (function () {
     function Scene(opts) {
         var _this = this;
@@ -56,6 +58,16 @@ var Scene = /** @class */ (function () {
             console.error('Container not found!');
             return;
         }
+        if (!globalThis.QRCode) {
+            var script = document.createElement('script');
+            script.src =
+                '//cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+            script.integrity =
+                'sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==';
+            script.crossOrigin = 'anonymous';
+            script.referrerPolicy = 'no-referrer';
+            this.container.appendChild(script);
+        }
         this.baseUrl =
             (this.opts.API_URL || constants_js_1.API_URL) +
                 this.opts.panelId +
@@ -66,8 +78,34 @@ var Scene = /** @class */ (function () {
             .then(function (data) {
             _this.data = data;
             _this.events.trigger('load-data', data);
-            _this.setupScene();
+            if (_this.opts.mode === '360') {
+                _this.setupScene();
+            }
+            else if (_this.opts.mode === 'model') {
+                _this.setupModelViewer();
+            }
+            else {
+                data.framesCount > 0 ? _this.setupScene() : _this.setupModelViewer();
+            }
+            if (_this.opts.ar === undefined || _this.opts.ar) {
+                _this.setupAR();
+            }
         });
+    };
+    Scene.prototype.setupModelViewer = function () {
+        this.modelElement = document.createElement('model-viewer');
+        this.modelElement.setAttribute('touch-action', 'pan-y');
+        this.modelElement.setAttribute('camera-controls', '');
+        this.modelElement.setAttribute('enable-pan', '');
+        this.modelElement.setAttribute('environment-image', 'neutral');
+        this.modelElement.setAttribute('src', constants_js_1.API_URL +
+            this.opts.panelId +
+            '/' +
+            this.opts.productCode +
+            '/model?type=glb&variants=' +
+            JSON.stringify(this.opts.variants));
+        this.modelElement.classList.add('threedily-model');
+        this.container.appendChild(this.modelElement);
     };
     Scene.prototype.setupScene = function () {
         var _this = this;
@@ -92,7 +130,6 @@ var Scene = /** @class */ (function () {
             if (step === void 0) { step = 0; }
             _this.frameElements[i].src = _this.buildURL(i);
             _this.frameElements[i].onload = function () {
-                // i + step < this.data.framesCount - 1 && loadFrames(i + 1 + step)
                 _this.onLoading();
                 _this.frameElements[i].onload = null;
             };
@@ -100,6 +137,65 @@ var Scene = /** @class */ (function () {
         for (var i = 0; i < this.data.framesCount; i++) {
             loadFrames(i);
         }
+    };
+    Scene.prototype.setupAR = function () {
+        var _this = this;
+        var arBtn = document.createElement('a');
+        this.container.appendChild(arBtn);
+        arBtn.classList.add('threedily-ar-btn');
+        if ((0, utils_js_1.isIos)()) {
+            arBtn.setAttribute('href', constants_js_1.API_URL +
+                this.opts.panelId +
+                '/' +
+                this.opts.productCode +
+                '/model?type=glb&variants=' +
+                JSON.stringify(this.opts.variants));
+            arBtn.setAttribute('rel', 'ar');
+            this.opts.autoAR && arBtn.click();
+        }
+        else if ((0, utils_js_1.isAndroid)()) {
+            arBtn.setAttribute('href', 'intent://arvr.google.com/scene-viewer/1.0?file=' +
+                constants_js_1.API_URL +
+                this.opts.panelId +
+                '/' +
+                this.opts.productCode +
+                '/model?type=glb&variants=' +
+                JSON.stringify(this.opts.variants) +
+                '#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end;');
+            this.opts.autoAR && arBtn.click();
+        }
+        else {
+            arBtn.addEventListener('click', function () {
+                _this.showQRCode();
+            });
+        }
+    };
+    Scene.prototype.showQRCode = function () {
+        var modal = document.createElement('div');
+        var wrapper = document.createElement('div');
+        var desc = document.createElement('p');
+        desc.classList.add('threedily-ar-qr-desc');
+        desc.innerText = 'Please scan the following code with your mobile phone.';
+        modal.classList.add('threedily-ar-qr-modal');
+        wrapper.classList.add('threedily-ar-qr-wrapper');
+        modal.appendChild(desc);
+        this.container.appendChild(modal);
+        modal.appendChild(wrapper);
+        var qrcode = new globalThis.QRCode(wrapper, {
+            text: this.opts.arUrl || window.location.href,
+            width: 256,
+            height: 256,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: globalThis.QRCode.CorrectLevel.H,
+        });
+        var closeBtn = document.createElement('div');
+        closeBtn.classList.add('threedily-ar-qr-close-btn');
+        closeBtn.onclick = function () {
+            qrcode.clear();
+            modal.remove();
+        };
+        modal.appendChild(closeBtn);
     };
     Scene.prototype.createLoading = function () {
         var progress = document.createElement('div');

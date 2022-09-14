@@ -2,10 +2,12 @@ import { Controller } from './Controller.js';
 import { ISceneOpts } from './models/scene.js';
 import { ISceneData } from './models/data.js';
 import { EventsOnArgsType, EventsOffArgsType } from './Events.js';
+import '../libs/model-viewer.min.js';
 export declare class Scene {
     opts: ISceneOpts;
     container: HTMLElement;
     sceneElement: HTMLElement;
+    modelElement: HTMLElement;
     baseUrl: string;
     controller: Controller;
     data: ISceneData;
@@ -17,7 +19,10 @@ export declare class Scene {
     zoom: boolean;
     constructor(opts: ISceneOpts);
     private init;
+    private setupModelViewer;
     private setupScene;
+    private setupAR;
+    private showQRCode;
     private createLoading;
     private validateOpts;
     private buildURL;
