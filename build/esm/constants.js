@@ -1,1 +1,1 @@
-export var API_URL = 'https://dev.api.3dily.com/scene/';
+export var API_URL = 'https://beta.api.3dily.com/scene/';

@@ -34,7 +34,7 @@ export declare class Scene {
         [key: string]: string;
     }): void;
     changeBackground(color: string): void;
-    toggleShadow(): void;
+    toggleShadow(value?: boolean): void;
     getData(): ISceneData | undefined;
     on(...args: EventsOnArgsType): void;
     off(...args: EventsOffArgsType): void;

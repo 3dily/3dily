@@ -1,1 +1,1 @@
-export declare const API_URL = "https://dev.api.3dily.com/scene/";
+export declare const API_URL = "https://beta.api.3dily.com/scene/";

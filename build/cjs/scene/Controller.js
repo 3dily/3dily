@@ -87,10 +87,10 @@ var Controller = /** @class */ (function () {
     Controller.prototype.getTranslate = function (clientX, clientY) {
         var localPosition = {
             x: clamp(clientX -
-                this.element.offsetLeft -
+                this.element.getBoundingClientRect().left -
                 parseInt(window.getComputedStyle(this.element).borderWidth.replace('px', '')), 0, this.element.clientWidth),
             y: clamp(clientY -
-                this.element.offsetTop -
+                this.element.getBoundingClientRect().top -
                 parseInt(window.getComputedStyle(this.element).borderWidth.replace('px', '')), 0, this.element.clientHeight),
         };
         var widthDelta = (this.element.clientWidth * (this.zoomScale - 1)) / (2 * this.zoomScale);

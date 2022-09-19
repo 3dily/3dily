@@ -12,5 +12,5 @@ export interface ISceneOpts {
     autoAR?: boolean;
     arUrl?: string;
     ar?: boolean;
-    mode: 'model' | '360' | 'auto';
+    mode?: 'model' | '360' | 'auto';
 }

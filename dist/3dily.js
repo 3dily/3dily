@@ -8,7 +8,7 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Threedily = factory());
 })(this, (function () { 'use strict';
 
-    var API_URL = 'https://dev.api.3dily.com/scene/';
+    var API_URL = 'https://beta.api.3dily.com/scene/';
 
     var clamp = function (number, min, max) {
         return Math.min(Math.max(number, min), max);
@@ -96,10 +96,10 @@
         Controller.prototype.getTranslate = function (clientX, clientY) {
             var localPosition = {
                 x: clamp(clientX -
-                    this.element.offsetLeft -
+                    this.element.getBoundingClientRect().left -
                     parseInt(window.getComputedStyle(this.element).borderWidth.replace('px', '')), 0, this.element.clientWidth),
                 y: clamp(clientY -
-                    this.element.offsetTop -
+                    this.element.getBoundingClientRect().top -
                     parseInt(window.getComputedStyle(this.element).borderWidth.replace('px', '')), 0, this.element.clientHeight),
             };
             var widthDelta = (this.element.clientWidth * (this.zoomScale - 1)) / (2 * this.zoomScale);
@@ -1388,11 +1388,14 @@ canvas.show {
         }
         Scene.prototype.init = function () {
             var _this = this;
-            this.container = document.getElementById(this.opts.containerId);
-            if (!this.container) {
+            var container = document.getElementById(this.opts.containerId);
+            if (!container) {
                 console.error('Container not found!');
                 return;
             }
+            this.container = document.createElement('div');
+            this.container.classList.add('threedily-container');
+            container.appendChild(this.container);
             if (!globalThis.QRCode) {
                 var script = document.createElement('script');
                 script.src =
@@ -1422,25 +1425,23 @@ canvas.show {
                 else {
                     data.framesCount > 0 ? _this.setupScene() : _this.setupModelViewer();
                 }
-                if (_this.opts.ar === undefined || _this.opts.ar) {
-                    _this.setupAR();
-                }
             });
         };
         Scene.prototype.setupModelViewer = function () {
+            this.remove();
             this.modelElement = document.createElement('model-viewer');
             this.modelElement.setAttribute('touch-action', 'pan-y');
             this.modelElement.setAttribute('camera-controls', '');
             this.modelElement.setAttribute('enable-pan', '');
             this.modelElement.setAttribute('environment-image', 'neutral');
-            this.modelElement.setAttribute('src', API_URL +
-                this.opts.panelId +
-                '/' +
-                this.opts.productCode +
-                '/model?type=glb&variants=' +
-                JSON.stringify(this.opts.variants));
+            this.modelElement.setAttribute('src', this.baseUrl +
+                '/model?type=glb' +
+                (this.opts.variants
+                    ? "&variants=".concat(JSON.stringify(this.opts.variants))
+                    : ''));
             this.modelElement.classList.add('threedily-model');
             this.container.appendChild(this.modelElement);
+            this.setupAR();
         };
         Scene.prototype.setupScene = function () {
             var _this = this;
@@ -1471,31 +1472,33 @@ canvas.show {
             for (var i = 0; i < this.data.framesCount; i++) {
                 loadFrames(i);
             }
+            this.setupAR();
         };
         Scene.prototype.setupAR = function () {
             var _this = this;
+            if (this.opts.ar !== undefined && !this.opts.ar) {
+                return;
+            }
             var arBtn = document.createElement('a');
             this.container.appendChild(arBtn);
             arBtn.classList.add('threedily-ar-btn');
             if (isIos()) {
-                arBtn.setAttribute('href', API_URL +
-                    this.opts.panelId +
-                    '/' +
-                    this.opts.productCode +
-                    '/model?type=glb&variants=' +
-                    JSON.stringify(this.opts.variants));
+                arBtn.setAttribute('href', this.baseUrl +
+                    '/model?type=usdz' +
+                    (this.opts.variants
+                        ? "&variants=".concat(JSON.stringify(this.opts.variants))
+                        : ''));
                 arBtn.setAttribute('rel', 'ar');
                 this.opts.autoAR && arBtn.click();
             }
             else if (isAndroid()) {
                 arBtn.setAttribute('href', 'intent://arvr.google.com/scene-viewer/1.0?file=' +
-                    API_URL +
-                    this.opts.panelId +
-                    '/' +
-                    this.opts.productCode +
-                    '/model?type=glb&variants=' +
-                    JSON.stringify(this.opts.variants) +
-                    '#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end;');
+                    this.baseUrl +
+                    '/model?type=glb' +
+                    (this.opts.variants
+                        ? "&variants=".concat(JSON.stringify(this.opts.variants))
+                        : '') +
+                    '#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;');
                 this.opts.autoAR && arBtn.click();
             }
             else {
@@ -1563,17 +1566,33 @@ canvas.show {
             if (this.sceneElement) {
                 this.sceneElement.remove();
             }
+            if (this.modelElement) {
+                this.modelElement.remove();
+            }
         };
         Scene.prototype.changeVariants = function (variants) {
             this.opts.variants = variants;
-            this.setupScene();
+            if (this.opts.mode === '360') {
+                this.setupScene();
+            }
+            else if (this.opts.mode === 'model') {
+                this.setupModelViewer();
+            }
+            else {
+                this.data.framesCount > 0 ? this.setupScene() : this.setupModelViewer();
+            }
         };
         Scene.prototype.changeBackground = function (color) {
             this.opts.background = color;
             this.setupScene();
         };
-        Scene.prototype.toggleShadow = function () {
-            this.opts.shadow = !this.opts.shadow;
+        Scene.prototype.toggleShadow = function (value) {
+            if (value === undefined) {
+                this.opts.shadow = !this.opts.shadow;
+            }
+            else {
+                this.opts.shadow = value;
+            }
             this.setupScene();
         };
         Scene.prototype.getData = function () {
